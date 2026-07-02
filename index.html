@@ -1059,6 +1059,71 @@
             /* <<< SYNC_XLSX_DATA_END */
         ];
 
+        // ==================== 稀有度组合排序引擎（可扩展） ====================
+        const RARITY_HIGH_TO_LOW = [3, 2, 1, 0];            // 稀有度数值从高到低
+        const POLLUTION = new Set([0]);                     // 污染色集合，可自由增减
+        
+        // 追加法生成序列
+        function generateOrder(list) {
+            let seq = [];
+            for (let i = 0; i < list.length; i++) {
+                const elem = list[i];
+                if (i === 0) {
+                    seq = [[elem]];
+                } else {
+                    const newBlock = [];
+                    for (const set of seq) {
+                        newBlock.push([...set, elem]);
+                    }
+                    newBlock.push([elem]);
+                    seq = seq.concat(newBlock);
+                }
+            }
+            return seq;
+        }
+        
+        // 预计算纯净组和污染组序列及分数映射
+        const pureRaritiesDesc = RARITY_HIGH_TO_LOW.filter(r => !POLLUTION.has(r));
+        const pureRaritiesAsc = [...pureRaritiesDesc].reverse();
+        
+        const pureOrder = generateOrder(pureRaritiesDesc);
+        const pollutedBase = generateOrder(pureRaritiesAsc);       // 用升序生成
+        const pollutedOrder = pollutedBase.reverse().map(set => [...set, ...POLLUTION]); // 反转后附加污染色
+        
+        // 如果所有稀有度都是污染色，则污染组仅一个全污染组合
+        if (pureRaritiesDesc.length === 0) {
+            pollutedOrder.push([...POLLUTION]);
+        }
+        
+        // 构建分数映射：组合key（稀有度数字排序后逗号连接） → 分数（越大越好）
+        const pureScoreMap = new Map();
+        pureOrder.forEach((set, idx) => {
+            const key = set.slice().sort((a,b)=>a-b).join(',');
+            pureScoreMap.set(key, pollutedOrder.length + (pureOrder.length - 1 - idx));
+        });
+        
+        const pollutedScoreMap = new Map();
+        pollutedOrder.forEach((set, idx) => {
+            const key = set.slice().sort((a,b)=>a-b).join(',');
+            pollutedScoreMap.set(key, pollutedOrder.length - 1 - idx);
+        });
+        
+        /**
+         * 获取一组角色的稀有度组合分数
+         * @param {Array} roles - 角色对象数组（需含 '稀有度' 字段）
+         * @returns {number} 分数，越大越优
+         */
+        function getComboScore(roles) {
+            const raritySet = new Set(roles.map(r => parseInt(r['稀有度'])));
+            const hasPollution = Array.from(POLLUTION).some(p => raritySet.has(p));
+            const key = Array.from(raritySet).sort((a,b)=>a-b).join(',');
+            if (hasPollution) {
+                return pollutedScoreMap.get(key) ?? -1;
+            } else {
+                return pureScoreMap.get(key) ?? -1;
+            }
+        }
+        
         const filterCols = ['职业', '种族', '属性', '地区'];
         let selectedTags = [];
         let allTagValues = [];
@@ -1175,35 +1240,35 @@
                     const roleValues = Object.values(role).map(String);
                     return combo.every(tag => roleValues.includes(String(tag)));
                 });
-
+            
                 if (filtered.length === 0) return null;
-
+            
                 const rarities = filtered.map(r => parseInt(r['稀有度']) || 0);
                 const minRarity = Math.min(...rarities);
-
-                let weight = 0;
-                if (minRarity >= 3) weight = 3000;
-                else if (minRarity >= 2) weight = 2000;
-                weight += (combo.length * 10);
-
+                const score = getComboScore(filtered);          // 新排序分数
+            
                 return {
                     combo,
                     filtered: filtered.sort((a, b) => b['稀有度'] - a['稀有度']),
-                    minRarity,
-                    weight
+                    minRarity,           // 保留，用于保底高亮
+                    score
                 };
             }).filter(item => item !== null);
-
-            comboResults.sort((a, b) => b.weight - a.weight);
-
+            
+            // 按分数降序，同分按角色数量降序（可选）
+            comboResults.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return b.filtered.length - a.filtered.length;
+            });
+            
             let finalHTML = "";
             let highValueCount = 0;
-
+            
             comboResults.forEach(item => {
                 const isGold = item.minRarity >= 3;
                 const isPurple = item.minRarity >= 2;
                 if (isPurple) highValueCount++;
-
+            
                 const headerClass = isGold ? 'gold-header' : (isPurple ? 'purple-header' : '');
 
                 finalHTML += `
