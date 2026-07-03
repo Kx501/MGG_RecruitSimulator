@@ -113,6 +113,13 @@
             text-decoration: underline;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
         .btn-reset {
             padding: 8px 18px;
             background: var(--color-reset-bg);
@@ -411,81 +418,72 @@
                 margin-bottom: 8px;
             }
 
+            .header-actions {
+                gap: 6px;
+            }
+
+            .ocr-section {
+                padding: 8px 12px;
+                margin-bottom: 10px;
+            }
+            .ocr-config-row {
+                gap: 8px 10px;
+            }
+            .ocr-config-row label {
+                min-width: 0;
+                flex: 1 1 calc(50% - 10px);
+            }
+            .ocr-config-row .ocr-reset-mini {
+                flex: 1 1 100%;
+                margin-left: 0;
+            }
+            .ocr-hint {
+                font-size: 10px;
+            }
+
+            .filter-section {
+                padding: 10px 12px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+            }
             .header-title {
                 min-width: 80px;
             }
             .header-title h2 {
                 font-size: 1.15rem;
             }
-
-            .btn-reset {
+            .btn-reset,
+            .ocr-btn {
                 padding: 6px 12px;
                 font-size: 12px;
                 border-radius: 6px;
-                min-height: 32px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .ocr-section {
-                padding: 8px 10px;
-                margin-bottom: 8px;
-                gap: 6px;
-            }
-            .ocr-actions {
-                gap: 6px;
-            }
-            .ocr-btn {
-                font-size: 12px;
-                padding: 5px 10px;
-                min-height: 30px;
-            }
-            .ocr-status {
-                font-size: 11px;
-                line-height: 1.3;
-            }
-            .ocr-config-wrap summary {
-                font-size: 12px;
-            }
-            .ocr-hint {
-                font-size: 11px;
-                line-height: 1.35;
-            }
-
-            /* 标签选择区：行内紧凑排列，不限高 */
-            .filter-section {
-                padding: 8px 10px;
-                margin-bottom: 8px;
-                border-radius: 6px;
+                min-height: 34px;
             }
             .filter-group {
                 flex-direction: row;
-                align-items: center;
-                gap: 6px;
-                margin-bottom: 5px;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 8px;
             }
             .filter-group:last-child {
                 margin-bottom: 0;
             }
             .filter-label {
-                width: 42px;
-                min-width: 42px;
-                padding-top: 0;
-                font-size: 11px;
-                padding-bottom: 0;
-                letter-spacing: 0;
-                line-height: 1.2;
+                width: 48px;
+                min-width: 48px;
+                padding-top: 7px;
+                font-size: 12px;
+                letter-spacing: 0.02em;
             }
             .tags-container {
-                gap: 4px;
+                gap: 6px;
             }
             .tag {
-                padding: 3px 8px;
-                font-size: 11px;
-                border-radius: 4px;
-                min-height: 26px;
-                border-width: 1px;
+                padding: 7px 13px;
+                font-size: 12px;
+                border-radius: 6px;
+                min-height: 38px;
+                border-width: 1.5px;
             }
             .tag:active {
                 transform: scale(0.93);
@@ -595,20 +593,15 @@
                 min-height: 28px;
             }
             .filter-section {
-                padding: 6px 8px;
+                padding: 8px 10px;
             }
             .filter-label {
-                width: 36px;
-                min-width: 36px;
-                font-size: 10px;
+                width: 44px;
+                min-width: 44px;
             }
             .tag {
-                padding: 2px 6px;
-                font-size: 10px;
-                min-height: 24px;
-            }
-            .tags-container {
-                gap: 3px;
+                padding: 6px 11px;
+                min-height: 36px;
             }
             .result-stats {
                 font-size: 10px;
@@ -645,21 +638,11 @@
         }
 
         .ocr-section {
-            background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 12px 15px;
+            background: var(--color-filter-bg);
+            border: 1px solid var(--color-filter-border);
+            border-radius: var(--radius-filter);
+            padding: 10px 14px;
             margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
-        }
-        .ocr-actions {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
         }
         .ocr-btn {
             background: #3498db;
@@ -673,7 +656,10 @@
             transition: background 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            white-space: nowrap;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .ocr-btn:hover {
             background: #2980b9;
@@ -685,45 +671,78 @@
             background: #94a3b8;
             cursor: not-allowed;
         }
-        .ocr-status {
-            font-size: 13px;
-            color: #475569;
-            font-weight: 500;
-        }
         .ocr-config-wrap {
             font-size: 13px;
             color: #334155;
         }
         .ocr-config-wrap summary {
             cursor: pointer;
-            font-weight: 600;
-            color: #475569;
             user-select: none;
+            list-style: none;
         }
-        .ocr-hint {
-            margin: 8px 0 0;
-            padding: 0;
+        .ocr-config-wrap summary::-webkit-details-marker {
+            display: none;
+        }
+        .ocr-summary-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+        }
+        .ocr-status {
+            flex: 1;
+            min-width: 0;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ocr-status:empty::before {
+            content: '点击上方「上传截图」开始识别，状态将显示在这里';
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .ocr-summary-label {
+            flex-shrink: 0;
             font-size: 12px;
-            line-height: 1.45;
+            font-weight: 600;
             color: #64748b;
+            letter-spacing: 0.02em;
         }
-        .ocr-config-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px 12px;
-            margin-top: 10px;
-            align-items: end;
+        .ocr-summary-label::after {
+            content: ' ▸';
+            color: #94a3b8;
+            font-weight: 400;
         }
-        .ocr-config-grid label {
+        .ocr-config-wrap[open] .ocr-summary-label::after {
+            content: ' ▾';
+        }
+        .ocr-config-body {
+            padding-top: 10px;
+            margin-top: 8px;
+            border-top: 1px solid var(--color-filter-border);
+        }
+        .ocr-config-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 10px 14px;
+        }
+        .ocr-config-row label {
             display: flex;
             flex-direction: column;
             gap: 4px;
             font-size: 12px;
             color: #64748b;
+            min-width: 110px;
+            flex: 1;
         }
-        .ocr-config-grid input,
-        .ocr-config-grid select,
-        .ocr-config-grid textarea {
+        .ocr-config-row input,
+        .ocr-config-row select {
             font-size: 13px;
             padding: 6px 8px;
             border: 1px solid #cbd5e1;
@@ -732,22 +751,29 @@
             box-sizing: border-box;
             width: 100%;
         }
-        .ocr-config-grid textarea {
-            font-family: ui-monospace, monospace;
-            resize: vertical;
-            min-height: 44px;
+        .ocr-hint {
+            margin: 10px 0 0;
+            padding: 0;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #94a3b8;
+        }
+        .ocr-hint a {
+            color: #64748b;
         }
         .ocr-reset-mini {
             background: #e2e8f0;
             color: #334155;
             border: none;
-            padding: 8px 12px;
+            padding: 7px 12px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            height: fit-content;
-            align-self: end;
+            height: 34px;
+            flex-shrink: 0;
+            margin-left: auto;
+            align-self: flex-end;
         }
         .ocr-reset-mini:hover {
             background: #cbd5e1;
@@ -761,32 +787,38 @@
                 <h2>组合模拟</h2>
                 <a id="repoLink" class="repo-link" href="#" target="_blank" rel="noopener noreferrer" hidden>(GitHub)</a>
             </div>
-            <button class="btn-reset" onclick="resetTags()">重置选择</button>
+            <div class="header-actions">
+                <button class="ocr-btn" id="ocrBtn" type="button" onclick="document.getElementById('ocrInput').click()">上传截图</button>
+                <button class="btn-reset" onclick="resetTags()">重置选择</button>
+            </div>
         </div>
+        <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOCRFile(this)">
 
         <div class="ocr-section">
-            <div class="ocr-actions">
-                <button class="ocr-btn" id="ocrBtn" type="button" onclick="document.getElementById('ocrInput').click()">可上传截图</button>
-                <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOCRFile(this)">
-                <span class="ocr-status" id="ocrStatus"></span>
-            </div>
             <details class="ocr-config-wrap">
-                <summary>OCR 参数（建议检查结果）</summary>
-                <p class="ocr-hint">基于 <a href="https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/cross_platform/browser.html" target="_blank" rel="noopener noreferrer">PaddleOCR.js</a>（PP-OCRv5）。须 <strong>HTTP(S) 源</strong>访问（任意静态托管或本地 dev server）；<strong>file:// 不可用</strong>（ESM/WASM 受同源策略限制）。首次识别需联网拉取模型。裁切框以画面中心为基准，宽高比 0~1。</p>
-                <div class="ocr-config-grid">
-                    <label>裁切模式
-                        <select id="ocrCropMode">
-                            <option value="relative">比例框</option>
-                            <option value="full">全屏</option>
-                        </select>
-                    </label>
-                    <label>宽 (0~1)
-                        <input type="number" id="ocrRelW" min="0" max="1" step="0.01">
-                    </label>
-                    <label>高 (0~1)
-                        <input type="number" id="ocrRelH" min="0" max="1" step="0.01">
-                    </label>
-                    <button type="button" class="ocr-reset-mini" onclick="resetOcrDefaults()">恢复默认</button>
+                <summary>
+                    <span class="ocr-summary-bar">
+                        <span class="ocr-status" id="ocrStatus"></span>
+                        <span class="ocr-summary-label">裁切参数</span>
+                    </span>
+                </summary>
+                <div class="ocr-config-body">
+                    <div class="ocr-config-row">
+                        <label>裁切模式
+                            <select id="ocrCropMode">
+                                <option value="relative">比例框</option>
+                                <option value="full">全屏</option>
+                            </select>
+                        </label>
+                        <label>宽度比例（0~1）
+                            <input type="number" id="ocrRelW" min="0" max="1" step="0.01">
+                        </label>
+                        <label>高度比例（0~1）
+                            <input type="number" id="ocrRelH" min="0" max="1" step="0.01">
+                        </label>
+                        <button type="button" class="ocr-reset-mini" onclick="resetOcrDefaults()">恢复默认</button>
+                    </div>
+                    <p class="ocr-hint">使用 <a href="https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/cross_platform/browser.html" target="_blank" rel="noopener noreferrer">PaddleOCR.js</a>（PP-OCRv6 tiny）识别截图中的招募词条。本页须通过 HTTP(S) 访问（如 GitHub Pages 或本地 dev server），不支持 file:// 直接打开。首次识别会联网下载轻量模型并缓存在浏览器；支持 WebGPU 加速（不可用则回退 WASM）。默认以画面中心裁切，比例可在上方调整。</p>
                 </div>
             </details>
         </div>
@@ -820,15 +852,21 @@
     </div>
 
     <script>
-        /* OCR：裁切 → PaddleOCR.js(PP-OCRv5/ch) → 行级词条匹配。须 HTTP(S) 源。 */
+        /* OCR：裁切 → PaddleOCR.js(PP-OCRv6 tiny) → 行级词条匹配。须 HTTP(S) 源。 */
         const PADDLE_ESM_URLS = [
             'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm',
             'https://esm.sh/@paddleocr/paddleocr-js@0.4.2?bundle'
         ];
         const ORT_WASM_BASE = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
+        const OCR_MAX_SIDE = 1280;
+        const OCR_JPEG_QUALITY = 0.92;
+        const OCR_PREDICT_OPTS = {
+            textDetLimitSideLen: 960,
+            textDetLimitType: 'max'
+        };
         const OCR_STORAGE_KEY = 'recruit_ocr_v1';
         /** 已同意联网加载 OCR 模型；清除站点数据前不再弹窗 */
-        const OCR_ENGINE_OK_KEY = 'recruit_ocr_dl_v1';
+        const OCR_ENGINE_OK_KEY = 'recruit_ocr_dl_v2';
         const OCR_DEFAULT = {
             cropMode: 'relative',
             cropRel: { w: 0.84, h: 0.42 }
@@ -1212,6 +1250,7 @@
             filterDiv.appendChild(rarityGroup);
 
             allTagValues = [...new Set(allTagValues)];
+            maybeWarmupOcrEngine();
         };
 
         function toggleTag(val, element) {
@@ -1340,6 +1379,22 @@
         }
 
         let paddleClient = null;
+        let paddleInitPromise = null;
+
+        function limitCanvasSize(canvas, maxSide) {
+            const w = canvas.width;
+            const h = canvas.height;
+            if (Math.max(w, h) <= maxSide) return canvas;
+            const scale = maxSide / Math.max(w, h);
+            const c = document.createElement('canvas');
+            c.width = Math.round(w * scale);
+            c.height = Math.round(h * scale);
+            const ctx = c.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(canvas, 0, 0, c.width, c.height);
+            return c;
+        }
 
         /** 移动端约定：词条区近画面中心，用宽、高相对全屏从中心裁切 */
         function relFromCenter(size) {
@@ -1369,19 +1424,25 @@
         }
 
         function cropImageToCanvas(img) {
+            let canvas;
             if (ocrConfig.cropMode === 'full') {
-                const canvas = document.createElement('canvas');
+                canvas = document.createElement('canvas');
                 canvas.width = img.naturalWidth;
                 canvas.height = img.naturalHeight;
                 canvas.getContext('2d').drawImage(img, 0, 0);
-                return canvas;
+            } else {
+                canvas = canvasRelativeCropFromImage(img, relFromCenter(normalizeCropRel(ocrConfig.cropRel)));
             }
-            const cropCanvas = canvasRelativeCropFromImage(img, relFromCenter(normalizeCropRel(ocrConfig.cropRel)));
-            const canvas = document.createElement('canvas');
-            canvas.width = cropCanvas.width;
-            canvas.height = cropCanvas.height;
-            canvas.getContext('2d').drawImage(cropCanvas, 0, 0);
-            return canvas;
+            return limitCanvasSize(canvas, OCR_MAX_SIDE);
+        }
+
+        function canvasToOcrBlob(canvas) {
+            return new Promise((resolve, reject) => {
+                canvas.toBlob(blob => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('导出图片失败'));
+                }, 'image/jpeg', OCR_JPEG_QUALITY);
+            });
         }
 
         function fileToCropBlob(file) {
@@ -1391,11 +1452,7 @@
                 img.onload = () => {
                     URL.revokeObjectURL(url);
                     try {
-                        const canvas = cropImageToCanvas(img);
-                        canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject(new Error('导出图片失败'));
-                        }, 'image/png');
+                        canvasToOcrBlob(cropImageToCanvas(img)).then(resolve, reject);
                     } catch (e) {
                         reject(e);
                     }
@@ -1423,32 +1480,62 @@
 
         async function ensurePaddleClient(statusEl) {
             if (paddleClient) return paddleClient;
-            const mod = await importPaddleOCR();
-            const PaddleOCR = mod.PaddleOCR;
-            if (!PaddleOCR) throw new Error('PaddleOCR 模块加载失败');
-            if (statusEl) statusEl.textContent = '初始化模型（首次较慢）…';
-            paddleClient = await PaddleOCR.create({
-                lang: 'ch',
-                ocrVersion: 'PP-OCRv5',
-                ortOptions: {
-                    backend: 'wasm',
+            if (paddleInitPromise) return paddleInitPromise;
+
+            paddleInitPromise = (async () => {
+                const mod = await importPaddleOCR();
+                const PaddleOCR = mod.PaddleOCR;
+                if (!PaddleOCR) throw new Error('PaddleOCR 模块加载失败');
+                if (statusEl) statusEl.textContent = '正在初始化模型，首次加载可能较慢…';
+                const ortOpts = {
+                    backend: 'auto',
                     wasmPaths: ORT_WASM_BASE,
                     numThreads: 1,
                     simd: true
+                };
+                let client;
+                try {
+                    client = await PaddleOCR.create({
+                        textDetectionModelName: 'PP-OCRv6_tiny_det',
+                        textRecognitionModelName: 'PP-OCRv6_tiny_rec',
+                        textDetectionBatchSize: 1,
+                        textRecognitionBatchSize: 4,
+                        ortOptions: ortOpts
+                    });
+                } catch (e) {
+                    console.warn('[OCR] PP-OCRv6 tiny 不可用，回退 PP-OCRv5', e);
+                    client = await PaddleOCR.create({
+                        lang: 'ch',
+                        ocrVersion: 'PP-OCRv5',
+                        textDetectionBatchSize: 1,
+                        textRecognitionBatchSize: 4,
+                        ortOptions: ortOpts
+                    });
                 }
-            });
-            return paddleClient;
+                paddleClient = client;
+                return client;
+            })();
+
+            try {
+                return await paddleInitPromise;
+            } catch (e) {
+                paddleInitPromise = null;
+                throw e;
+            }
+        }
+
+        function maybeWarmupOcrEngine() {
+            if (location.protocol === 'file:') return;
+            try {
+                if (localStorage.getItem(OCR_ENGINE_OK_KEY) !== '1') return;
+            } catch (e) { return; }
+            ensurePaddleClient(null).catch(err => console.warn('[OCR] 后台预热失败', err));
         }
 
         function paddleTextFromResult(result) {
             if (!result || !Array.isArray(result.items)) return '';
             return result.items.map(it => it && it.text).filter(Boolean).join('\n');
         }
-
-        /** OCR 常见误识 → 词条（仅整行未命中时尝试） */
-        const OCR_CORRECTIONS = {
-            '招生': '射手'
-        };
 
         function isOcrUiLine(text) {
             return /最多选择|招募特定角色|\(\d+\s*\/\s*\d+\)/.test(text);
@@ -1465,11 +1552,10 @@
 
             for (const item of result.items) {
                 if (!item || !item.text || isOcrUiLine(item.text)) continue;
-                let line = normalizeOcrLine(item.text);
+                const line = normalizeOcrLine(item.text);
                 if (!line) continue;
 
-                let hit = tags.find(t => t === line);
-                if (!hit && OCR_CORRECTIONS[line]) hit = OCR_CORRECTIONS[line];
+                const hit = tags.find(t => t === line);
                 if (hit && !matched.includes(hit)) {
                     matched.push(hit);
                 }
@@ -1487,7 +1573,7 @@
             const btn = document.getElementById('ocrBtn');
 
             if (location.protocol === 'file:') {
-                statusEl.textContent = '❌ file:// 不可用；请通过 HTTP(S) 源访问（静态托管或 localhost）';
+                statusEl.textContent = '❌ 请通过 HTTP(S) 访问本页（如 GitHub Pages 或 localhost），本地文件方式无法使用 OCR';
                 if (input) input.value = '';
                 return;
             }
@@ -1499,10 +1585,10 @@
                 } catch (e) { /* 隐私模式等可能抛错 */ }
                 if (!engineOk) {
                     const ok = window.confirm(
-                        '首次使用需联网下载 PaddleOCR 模型与运行库（约20MB+，会缓存到浏览器）。是否继续？'
+                        '首次使用需要联网下载 OCR 模型与运行库（约 20MB+，之后会缓存在浏览器中）。是否继续？'
                     );
                     if (!ok) {
-                        statusEl.textContent = '已取消，未加载引擎';
+                        statusEl.textContent = '已取消加载';
                         if (input) input.value = '';
                         return;
                     }
@@ -1514,17 +1600,22 @@
 
             btn.disabled = true;
             try {
-                statusEl.textContent = '预处理…';
-                const blob = await fileToCropBlob(file);
-                statusEl.textContent = '加载 PaddleOCR…';
-                const ocr = await ensurePaddleClient(statusEl);
-                statusEl.textContent = '识别中…';
-                const results = await ocr.predict(blob);
+                const needInit = !paddleClient;
+                statusEl.textContent = needInit ? '正在加载引擎并处理图片…' : '正在处理图片…';
+                const [blob, ocr] = await Promise.all([
+                    fileToCropBlob(file),
+                    ensurePaddleClient(needInit ? statusEl : null)
+                ]);
+                statusEl.textContent = '正在识别文字…';
+                const results = await ocr.predict(blob, OCR_PREDICT_OPTS);
                 const result = results && results[0];
                 const text = paddleTextFromResult(result);
                 console.log('[OCR 原文]\n', text);
                 if (result && result.items) {
                     console.log('[OCR 行]', result.items.map(it => it.text + ' (' + (it.score != null ? it.score.toFixed(2) : '?') + ')'));
+                }
+                if (result && result.metrics) {
+                    console.log('[OCR 耗时]', result.metrics.totalMs + 'ms', result.runtime || '');
                 }
 
                 resetTags();
@@ -1538,10 +1629,10 @@
                             if (tagEl.dataset.val === val) tagEl.classList.add('active');
                         });
                     });
-                    statusEl.textContent = '✅ 命中 ' + found.length + ' 个词条';
+                    statusEl.textContent = '✅ 已自动勾选 ' + found.length + ' 个词条';
                     applyFilters();
                 } else {
-                    statusEl.textContent = '⚠️ 未匹配到词条';
+                    statusEl.textContent = '⚠️ 识别完成，但未匹配到词条，可检查裁切参数或手动选择';
                 }
             } catch (e) {
                 console.error(e);
