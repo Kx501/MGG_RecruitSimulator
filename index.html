@@ -397,71 +397,95 @@
         /* ============ 移动端适配 ============ */
         @media (max-width: 768px) {
             body {
-                padding: 8px;
+                padding: 6px;
             }
 
             .container {
-                padding: 14px;
+                padding: 10px;
                 border-radius: 10px;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             }
 
             .header-row {
                 gap: 8px;
-                margin-bottom: 14px;
+                margin-bottom: 8px;
             }
 
             .header-title {
                 min-width: 80px;
             }
             .header-title h2 {
-                font-size: 1.2rem;
+                font-size: 1.15rem;
             }
 
             .btn-reset {
-                padding: 7px 14px;
+                padding: 6px 12px;
                 font-size: 12px;
                 border-radius: 6px;
-                min-height: 36px;
+                min-height: 32px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
             }
 
-            /* 标签选择区 */
+            .ocr-section {
+                padding: 8px 10px;
+                margin-bottom: 8px;
+                gap: 6px;
+            }
+            .ocr-actions {
+                gap: 6px;
+            }
+            .ocr-btn {
+                font-size: 12px;
+                padding: 5px 10px;
+                min-height: 30px;
+            }
+            .ocr-status {
+                font-size: 11px;
+                line-height: 1.3;
+            }
+            .ocr-config-wrap summary {
+                font-size: 12px;
+            }
+            .ocr-hint {
+                font-size: 11px;
+                line-height: 1.35;
+            }
+
+            /* 标签选择区：行内紧凑排列，不限高 */
             .filter-section {
-                padding: 10px 12px;
-                margin-bottom: 12px;
+                padding: 8px 10px;
+                margin-bottom: 8px;
                 border-radius: 6px;
             }
             .filter-group {
-                flex-direction: column;
-                gap: 4px;
-                margin-bottom: 8px;
+                flex-direction: row;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 5px;
             }
             .filter-group:last-child {
                 margin-bottom: 0;
             }
             .filter-label {
-                width: 100%;
-                min-width: unset;
+                width: 42px;
+                min-width: 42px;
                 padding-top: 0;
-                font-size: 12px;
-                padding-bottom: 2px;
-                letter-spacing: 0.04em;
+                font-size: 11px;
+                padding-bottom: 0;
+                letter-spacing: 0;
+                line-height: 1.2;
             }
             .tags-container {
-                gap: 5px;
+                gap: 4px;
             }
             .tag {
-                padding: 7px 13px;
-                font-size: 12px;
-                border-radius: 6px;
-                min-height: 38px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border-width: 1.5px;
+                padding: 3px 8px;
+                font-size: 11px;
+                border-radius: 4px;
+                min-height: 26px;
+                border-width: 1px;
             }
             .tag:active {
                 transform: scale(0.93);
@@ -469,17 +493,16 @@
 
             /* 统计栏 */
             .result-stats {
-                font-size: 12px;
-                padding: 10px 12px;
-                margin-bottom: 10px;
+                font-size: 11px;
+                padding: 6px 10px;
+                margin-bottom: 6px;
                 border-left-width: 3px;
-                line-height: 1.4;
+                line-height: 1.35;
                 border-radius: 5px;
             }
 
-            /* 表格容器 */
             .table-wrapper {
-                max-height: 50vh;
+                max-height: 58vh;
                 overflow-y: auto;
                 overflow-x: hidden;
                 border-radius: 6px;
@@ -560,33 +583,36 @@
                 padding: 4px;
             }
             .container {
-                padding: 10px;
+                padding: 8px;
                 border-radius: 8px;
             }
-            h2 {
+            .header-title h2 {
                 font-size: 1.05rem;
             }
             .btn-reset {
-                padding: 6px 10px;
+                padding: 5px 9px;
                 font-size: 11px;
-                min-height: 32px;
-                border-radius: 5px;
-            }
-            .tag {
-                padding: 6px 10px;
-                font-size: 11px;
-                min-height: 34px;
-                border-radius: 5px;
-            }
-            .tags-container {
-                gap: 4px;
+                min-height: 28px;
             }
             .filter-section {
-                padding: 8px 10px;
+                padding: 6px 8px;
+            }
+            .filter-label {
+                width: 36px;
+                min-width: 36px;
+                font-size: 10px;
+            }
+            .tag {
+                padding: 2px 6px;
+                font-size: 10px;
+                min-height: 24px;
+            }
+            .tags-container {
+                gap: 3px;
             }
             .result-stats {
-                font-size: 11px;
-                padding: 8px 10px;
+                font-size: 10px;
+                padding: 5px 8px;
             }
             table {
                 min-width: 360px;
@@ -615,9 +641,6 @@
             }
             .combo-count {
                 font-size: 10px;
-            }
-            .table-wrapper {
-                max-height: 45vh;
             }
         }
 
@@ -729,18 +752,6 @@
         .ocr-reset-mini:hover {
             background: #cbd5e1;
         }
-        @media (max-width: 768px) {
-            .ocr-section {
-                padding: 10px 12px;
-            }
-            .ocr-btn {
-                font-size: 12px;
-                padding: 6px 12px;
-            }
-            .ocr-status {
-                font-size: 12px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -760,8 +771,8 @@
                 <span class="ocr-status" id="ocrStatus"></span>
             </div>
             <details class="ocr-config-wrap">
-                <summary>OCR 参数（PaddleOCR）</summary>
-                <p class="ocr-hint">使用 <a href="https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/cross_platform/browser.html" target="_blank" rel="noopener noreferrer">PaddleOCR.js</a>（PP-OCRv5）。部署到 <strong>GitHub Pages</strong> 后可用；首次识别需联网下载模型（约十余 MB，会缓存）。比例框以画面中心裁切，宽、高为 0~1。</p>
+                <summary>OCR 参数（建议检查结果）</summary>
+                <p class="ocr-hint">基于 <a href="https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/cross_platform/browser.html" target="_blank" rel="noopener noreferrer">PaddleOCR.js</a>（PP-OCRv5）。须 <strong>HTTP(S) 源</strong>访问（任意静态托管或本地 dev server）；<strong>file:// 不可用</strong>（ESM/WASM 受同源策略限制）。首次识别需联网拉取模型。裁切框以画面中心为基准，宽高比 0~1。</p>
                 <div class="ocr-config-grid">
                     <label>裁切模式
                         <select id="ocrCropMode">
@@ -809,7 +820,7 @@
     </div>
 
     <script>
-        /* OCR：裁切 → PaddleOCR.js(PP-OCRv5/ch) → 匹配词条。面向 GitHub Pages(https)。 */
+        /* OCR：裁切 → PaddleOCR.js(PP-OCRv5/ch) → 行级词条匹配。须 HTTP(S) 源。 */
         const PADDLE_ESM_URLS = [
             'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm',
             'https://esm.sh/@paddleocr/paddleocr-js@0.4.2?bundle'
@@ -1116,8 +1127,19 @@
         }
         
         const filterCols = ['职业', '种族', '属性', '地区'];
+        const rarityNameMap = { 0: '普通', 1: '稀有', 2: '史诗', 3: '传说' };
+        const rarityLevels = [3, 2, 1, 0];
+        const rarityNames = rarityLevels.map(n => rarityNameMap[n]);
         let selectedTags = [];
         let allTagValues = [];
+
+        function roleMatchesTag(role, tag) {
+            if (rarityNames.includes(tag)) {
+                const level = Object.keys(rarityNameMap).find(k => rarityNameMap[k] === tag);
+                return (parseInt(role['稀有度'], 10) || 0) === parseInt(level, 10);
+            }
+            return Object.values(role).map(String).includes(String(tag));
+        }
 
         /** 仓库地址；留空则在 *.github.io 上按路径自动推断 */
         const REPO_URL = '';
@@ -1170,6 +1192,25 @@
                 group.appendChild(tagsContainer);
                 filterDiv.appendChild(group);
             });
+
+            allTagValues = allTagValues.concat(rarityNames);
+            const rarityGroup = document.createElement('div');
+            rarityGroup.className = 'filter-group';
+            rarityGroup.innerHTML = '<div class="filter-label">稀有度</div>';
+            const rarityContainer = document.createElement('div');
+            rarityContainer.className = 'tags-container';
+            rarityLevels.forEach(level => {
+                const val = rarityNameMap[level];
+                const tag = document.createElement('span');
+                tag.className = 'tag rarity-' + level;
+                tag.innerText = val;
+                tag.dataset.val = val;
+                tag.onclick = () => toggleTag(val, tag);
+                rarityContainer.appendChild(tag);
+            });
+            rarityGroup.appendChild(rarityContainer);
+            filterDiv.appendChild(rarityGroup);
+
             allTagValues = [...new Set(allTagValues)];
         };
 
@@ -1213,7 +1254,6 @@
         function applyFilters() {
             const container = document.getElementById('tableBody');
             const stats = document.getElementById('stats');
-            const rarityNameMap = { 0: '普通', 1: '稀有', 2: '史诗', 3: '传说' }; // 稀有度文字映射
 
             if (selectedTags.length === 0) {
                 container.innerHTML = '<tr><td colspan="6" class="no-data">未选择任何标签</td></tr>';
@@ -1227,10 +1267,9 @@
             }
 
             let comboResults = rawCombos.map(combo => {
-                const filtered = allData.filter(role => {
-                    const roleValues = Object.values(role).map(String);
-                    return combo.every(tag => roleValues.includes(String(tag)));
-                });
+                const filtered = allData.filter(role =>
+                    combo.every(tag => roleMatchesTag(role, tag))
+                );
             
                 if (filtered.length === 0) return null;
             
@@ -1406,17 +1445,35 @@
             return result.items.map(it => it && it.text).filter(Boolean).join('\n');
         }
 
-        function matchTagsFromText(rawText) {
+        /** OCR 常见误识 → 词条（仅整行未命中时尝试） */
+        const OCR_CORRECTIONS = {
+            '招生': '射手'
+        };
+
+        function isOcrUiLine(text) {
+            return /最多选择|招募特定角色|\(\d+\s*\/\s*\d+\)/.test(text);
+        }
+
+        function normalizeOcrLine(text) {
+            return text.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
+        }
+
+        function matchTagsFromOcrResult(result) {
             const matched = [];
-            const cleaned = rawText.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
-            allTagValues.forEach(tag => {
-                if (tag.length < 2 || matched.includes(tag)) return;
-                if (cleaned.includes(tag)) {
-                    matched.push(tag);
-                    return;
+            if (!result || !Array.isArray(result.items)) return matched;
+            const tags = allTagValues.filter(t => t.length >= 2);
+
+            for (const item of result.items) {
+                if (!item || !item.text || isOcrUiLine(item.text)) continue;
+                let line = normalizeOcrLine(item.text);
+                if (!line) continue;
+
+                let hit = tags.find(t => t === line);
+                if (!hit && OCR_CORRECTIONS[line]) hit = OCR_CORRECTIONS[line];
+                if (hit && !matched.includes(hit)) {
+                    matched.push(hit);
                 }
-                if ([...tag].every(ch => cleaned.includes(ch))) matched.push(tag);
-            });
+            }
             return matched;
         }
 
@@ -1430,7 +1487,7 @@
             const btn = document.getElementById('ocrBtn');
 
             if (location.protocol === 'file:') {
-                statusEl.textContent = '❌ 请部署到 GitHub Pages 后使用（file:// 不支持）';
+                statusEl.textContent = '❌ file:// 不可用；请通过 HTTP(S) 源访问（静态托管或 localhost）';
                 if (input) input.value = '';
                 return;
             }
@@ -1442,7 +1499,7 @@
                 } catch (e) { /* 隐私模式等可能抛错 */ }
                 if (!engineOk) {
                     const ok = window.confirm(
-                        '首次使用需联网下载 PaddleOCR 模型与运行库（约十余 MB，会缓存到浏览器）。是否继续？'
+                        '首次使用需联网下载 PaddleOCR 模型与运行库（约20MB+，会缓存到浏览器）。是否继续？'
                     );
                     if (!ok) {
                         statusEl.textContent = '已取消，未加载引擎';
@@ -1471,7 +1528,7 @@
                 }
 
                 resetTags();
-                const found = matchTagsFromText(text);
+                const found = matchTagsFromOcrResult(result);
                 if (found.length > 0) {
                     found.forEach(val => {
                         if (selectedTags.length >= 9) return;
