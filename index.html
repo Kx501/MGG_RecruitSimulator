@@ -813,8 +813,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-        /* OCR：裁切(relative 中心比例框 | full 全屏) → 灰度 → Otsu；PSM 列表依次识别，原文拼接后逐字匹配。
+        /* OCR：裁切(relative 中心比例框 | full 全屏) → 灰度 → 暗底反色 → Tesseract；PSM 列表依次识别，原文拼接后逐字匹配。
            cropRel 仅存 w、h（0~1），位置由中心算出。配置见「OCR 参数」，存 localStorage。 */
+        const OCR_DARK_MEAN = 128;
         const OCR_STORAGE_KEY = 'recruit_ocr_v1';
         /** 已同意联网加载 OCR 引擎；清除站点数据前不再弹窗 */
         const OCR_ENGINE_OK_KEY = 'recruit_ocr_dl_v1';
@@ -1338,38 +1339,6 @@
             return c;
         }
 
-        function otsuPickThreshold(hist, px) {
-            let sumAll = 0;
-            for (let t = 0; t < 256; t++) sumAll += t * hist[t];
-            let sumB = 0;
-            let wB = 0;
-            let maxVar = -1;
-            let thr = 127;
-            for (let t = 0; t < 256; t++) {
-                wB += hist[t];
-                if (wB === 0) continue;
-                const wF = px - wB;
-                if (wF === 0) break;
-                sumB += t * hist[t];
-                const mB = sumB / wB;
-                const mF = (sumAll - sumB) / wF;
-                const between = wB * wF * (mB - mF) * (mB - mF);
-                if (between > maxVar) {
-                    maxVar = between;
-                    thr = t;
-                }
-            }
-            return thr;
-        }
-
-        function otsuThresholdFromGray(imageData) {
-            const d = imageData.data;
-            const hist = new Array(256).fill(0);
-            const px = d.length / 4;
-            for (let i = 0; i < d.length; i += 4) hist[d[i]]++;
-            return otsuPickThreshold(hist, px);
-        }
-
         function preprocessForTesseract(file) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -1396,15 +1365,18 @@
                     }
                     const imageData = ctx.getImageData(0, 0, w, h);
                     const d = imageData.data;
+                    let sum = 0;
+                    const px = d.length / 4;
                     for (let i = 0; i < d.length; i += 4) {
                         const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
                         d[i] = d[i + 1] = d[i + 2] = g;
+                        sum += g;
                     }
-                    const thr = otsuThresholdFromGray(imageData);
-                    for (let i = 0; i < d.length; i += 4) {
-                        const v = d[i] > thr ? 255 : 0;
-                        d[i] = d[i + 1] = d[i + 2] = v;
-                        d[i + 3] = 255;
+                    if (sum / px < OCR_DARK_MEAN) {
+                        for (let i = 0; i < d.length; i += 4) {
+                            const v = 255 - d[i];
+                            d[i] = d[i + 1] = d[i + 2] = v;
+                        }
                     }
                     ctx.putImageData(imageData, 0, 0);
                     resolve(canvas);
