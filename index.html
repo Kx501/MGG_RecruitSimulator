@@ -760,8 +760,8 @@
                 <span class="ocr-status" id="ocrStatus"></span>
             </div>
             <details class="ocr-config-wrap">
-                <summary>OCR 参数（准确率一般）</summary>
-                <p class="ocr-hint">比例框：以画面<strong>中心</strong>为基准裁一块矩形，宽、高相对全屏 0~1。PSM：逗号分隔，常用 11；略糊尝试 11,12。</p>
+                <summary>OCR 参数（PaddleOCR）</summary>
+                <p class="ocr-hint">使用 <a href="https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/cross_platform/browser.html" target="_blank" rel="noopener noreferrer">PaddleOCR.js</a>（PP-OCRv5）。部署到 <strong>GitHub Pages</strong> 后可用；首次识别需联网下载模型（约十余 MB，会缓存）。比例框以画面中心裁切，宽、高为 0~1。</p>
                 <div class="ocr-config-grid">
                     <label>裁切模式
                         <select id="ocrCropMode">
@@ -774,9 +774,6 @@
                     </label>
                     <label>高 (0~1)
                         <input type="number" id="ocrRelH" min="0" max="1" step="0.01">
-                    </label>
-                    <label>PSM（逗号分隔）
-                        <input type="text" id="ocrPsm" placeholder="11 或 11,12" autocomplete="off">
                     </label>
                     <button type="button" class="ocr-reset-mini" onclick="resetOcrDefaults()">恢复默认</button>
                 </div>
@@ -811,18 +808,19 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-        /* OCR：裁切(relative 中心比例框 | full 全屏) → 灰度 → 暗底反色 → Tesseract；PSM 列表依次识别，原文拼接后逐字匹配。
-           cropRel 仅存 w、h（0~1），位置由中心算出。配置见「OCR 参数」，存 localStorage。 */
-        const OCR_DARK_MEAN = 128;
+        /* OCR：裁切 → PaddleOCR.js(PP-OCRv5/ch) → 匹配词条。面向 GitHub Pages(https)。 */
+        const PADDLE_ESM_URLS = [
+            'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm',
+            'https://esm.sh/@paddleocr/paddleocr-js@0.4.2?bundle'
+        ];
+        const ORT_WASM_BASE = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
         const OCR_STORAGE_KEY = 'recruit_ocr_v1';
-        /** 已同意联网加载 OCR 引擎；清除站点数据前不再弹窗 */
+        /** 已同意联网加载 OCR 模型；清除站点数据前不再弹窗 */
         const OCR_ENGINE_OK_KEY = 'recruit_ocr_dl_v1';
         const OCR_DEFAULT = {
             cropMode: 'relative',
-            cropRel: { w: 0.84, h: 0.42 },
-            psmList: ['11']
+            cropRel: { w: 0.84, h: 0.42 }
         };
         function cloneOcrDefault() {
             return typeof structuredClone === 'function'
@@ -852,9 +850,6 @@
             if (!raw || typeof raw !== 'object') return d;
             const out = { ...d, ...raw };
             out.cropRel = normalizeCropRel(raw.cropRel);
-            out.psmList = Array.isArray(raw.psmList) && raw.psmList.length
-                ? raw.psmList.map(String)
-                : d.psmList;
             if (raw.cropMode !== 'relative' && raw.cropMode !== 'full') out.cropMode = d.cropMode;
             return out;
         }
@@ -879,9 +874,6 @@
                 w: clamp01(document.getElementById('ocrRelW') && document.getElementById('ocrRelW').value),
                 h: clamp01(document.getElementById('ocrRelH') && document.getElementById('ocrRelH').value)
             };
-            const psmStr = (document.getElementById('ocrPsm') && document.getElementById('ocrPsm').value || '').trim();
-            const parts = psmStr.split(/[,，\s]+/).filter(Boolean);
-            ocrConfig.psmList = parts.length ? parts.map(String) : ['11'];
         }
 
         function applyOcrToDom() {
@@ -892,12 +884,10 @@
             const cr = normalizeCropRel(ocrConfig.cropRel);
             if (rw) rw.value = cr.w;
             if (rh) rh.value = cr.h;
-            const psm = document.getElementById('ocrPsm');
-            if (psm) psm.value = ocrConfig.psmList.join(',');
         }
 
         function bindOcrConfigInputs() {
-            const ids = ['ocrCropMode', 'ocrRelW', 'ocrRelH', 'ocrPsm'];
+            const ids = ['ocrCropMode', 'ocrRelW', 'ocrRelH'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -1310,7 +1300,7 @@
             stats.innerText = `分析完毕：共发现 ${highValueCount} 组具有保底价值的组合`;
         }
 
-        let tesseractWorker = null;
+        let paddleClient = null;
 
         /** 移动端约定：词条区近画面中心，用宽、高相对全屏从中心裁切 */
         function relFromCenter(size) {
@@ -1339,47 +1329,37 @@
             return c;
         }
 
-        function preprocessForTesseract(file) {
+        function cropImageToCanvas(img) {
+            if (ocrConfig.cropMode === 'full') {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+                return canvas;
+            }
+            const cropCanvas = canvasRelativeCropFromImage(img, relFromCenter(normalizeCropRel(ocrConfig.cropRel)));
+            const canvas = document.createElement('canvas');
+            canvas.width = cropCanvas.width;
+            canvas.height = cropCanvas.height;
+            canvas.getContext('2d').drawImage(cropCanvas, 0, 0);
+            return canvas;
+        }
+
+        function fileToCropBlob(file) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 const url = URL.createObjectURL(file);
                 img.onload = () => {
                     URL.revokeObjectURL(url);
-                    let w;
-                    let h;
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    if (ocrConfig.cropMode === 'full') {
-                        w = img.naturalWidth;
-                        h = img.naturalHeight;
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, 0, 0);
-                    } else {
-                        const cropCanvas = canvasRelativeCropFromImage(img, relFromCenter(normalizeCropRel(ocrConfig.cropRel)));
-                        w = cropCanvas.width;
-                        h = cropCanvas.height;
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(cropCanvas, 0, 0);
+                    try {
+                        const canvas = cropImageToCanvas(img);
+                        canvas.toBlob(blob => {
+                            if (blob) resolve(blob);
+                            else reject(new Error('导出图片失败'));
+                        }, 'image/png');
+                    } catch (e) {
+                        reject(e);
                     }
-                    const imageData = ctx.getImageData(0, 0, w, h);
-                    const d = imageData.data;
-                    let sum = 0;
-                    const px = d.length / 4;
-                    for (let i = 0; i < d.length; i += 4) {
-                        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                        d[i] = d[i + 1] = d[i + 2] = g;
-                        sum += g;
-                    }
-                    if (sum / px < OCR_DARK_MEAN) {
-                        for (let i = 0; i < d.length; i += 4) {
-                            const v = 255 - d[i];
-                            d[i] = d[i + 1] = d[i + 2] = v;
-                        }
-                    }
-                    ctx.putImageData(imageData, 0, 0);
-                    resolve(canvas);
                 };
                 img.onerror = () => {
                     URL.revokeObjectURL(url);
@@ -1389,24 +1369,41 @@
             });
         }
 
-        async function getTesseractWorker(statusEl) {
-            if (typeof Tesseract === 'undefined') {
-                throw new Error('Tesseract 脚本未加载');
+        async function importPaddleOCR() {
+            let lastErr;
+            for (const url of PADDLE_ESM_URLS) {
+                try {
+                    return await import(/* @vite-ignore */ url);
+                } catch (e) {
+                    lastErr = e;
+                    console.warn('[OCR] CDN 加载失败:', url, e);
+                }
             }
-            if (tesseractWorker) return tesseractWorker;
-            if (statusEl) statusEl.textContent = '加载引擎与语言包…';
-            const worker = await Tesseract.createWorker('chi_sim', 1, {
-                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
-                corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core-lstm.wasm.js',
-                logger(m) {
-                    if (m.status === 'recognizing text' && statusEl) {
-                        const p = m.progress != null ? Math.round(m.progress * 100) + '%' : '';
-                        statusEl.textContent = '识别中… ' + p;
-                    }
+            throw lastErr || new Error('PaddleOCR 脚本加载失败（请检查网络或 CDN）');
+        }
+
+        async function ensurePaddleClient(statusEl) {
+            if (paddleClient) return paddleClient;
+            const mod = await importPaddleOCR();
+            const PaddleOCR = mod.PaddleOCR;
+            if (!PaddleOCR) throw new Error('PaddleOCR 模块加载失败');
+            if (statusEl) statusEl.textContent = '初始化模型（首次较慢）…';
+            paddleClient = await PaddleOCR.create({
+                lang: 'ch',
+                ocrVersion: 'PP-OCRv5',
+                ortOptions: {
+                    backend: 'wasm',
+                    wasmPaths: ORT_WASM_BASE,
+                    numThreads: 1,
+                    simd: true
                 }
             });
-            tesseractWorker = worker;
-            return worker;
+            return paddleClient;
+        }
+
+        function paddleTextFromResult(result) {
+            if (!result || !Array.isArray(result.items)) return '';
+            return result.items.map(it => it && it.text).filter(Boolean).join('\n');
         }
 
         function matchTagsFromText(rawText) {
@@ -1414,6 +1411,10 @@
             const cleaned = rawText.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
             allTagValues.forEach(tag => {
                 if (tag.length < 2 || matched.includes(tag)) return;
+                if (cleaned.includes(tag)) {
+                    matched.push(tag);
+                    return;
+                }
                 if ([...tag].every(ch => cleaned.includes(ch))) matched.push(tag);
             });
             return matched;
@@ -1428,19 +1429,20 @@
             const statusEl = document.getElementById('ocrStatus');
             const btn = document.getElementById('ocrBtn');
 
-            if (!tesseractWorker) {
-                if (typeof Tesseract === 'undefined') {
-                    statusEl.textContent = '❌ Tesseract 脚本未加载';
-                    if (input) input.value = '';
-                    return;
-                }
+            if (location.protocol === 'file:') {
+                statusEl.textContent = '❌ 请部署到 GitHub Pages 后使用（file:// 不支持）';
+                if (input) input.value = '';
+                return;
+            }
+
+            if (!paddleClient) {
                 let engineOk = false;
                 try {
                     engineOk = localStorage.getItem(OCR_ENGINE_OK_KEY) === '1';
                 } catch (e) { /* 隐私模式等可能抛错 */ }
                 if (!engineOk) {
                     const ok = window.confirm(
-                        '首次使用需要联网下载 OCR 引擎与简体中文语言包（约2MB）。是否继续？'
+                        '首次使用需联网下载 PaddleOCR 模型与运行库（约十余 MB，会缓存到浏览器）。是否继续？'
                     );
                     if (!ok) {
                         statusEl.textContent = '已取消，未加载引擎';
@@ -1456,22 +1458,17 @@
             btn.disabled = true;
             try {
                 statusEl.textContent = '预处理…';
-                const src = await preprocessForTesseract(file);
-                const worker = await getTesseractWorker(statusEl);
-                const psmList = ocrConfig.psmList && ocrConfig.psmList.length ? ocrConfig.psmList : ['11'];
-                const parts = [];
-                for (let i = 0; i < psmList.length; i++) {
-                    const psm = psmList[i];
-                    statusEl.textContent = '识别中 (' + (i + 1) + '/' + psmList.length + ')…';
-                    await worker.setParameters({
-                        tessedit_pageseg_mode: psm,
-                        preserve_interword_spaces: '1'
-                    });
-                    const { data } = await worker.recognize(src);
-                    parts.push(data && data.text ? data.text : '');
-                }
-                const text = parts.join('\n');
+                const blob = await fileToCropBlob(file);
+                statusEl.textContent = '加载 PaddleOCR…';
+                const ocr = await ensurePaddleClient(statusEl);
+                statusEl.textContent = '识别中…';
+                const results = await ocr.predict(blob);
+                const result = results && results[0];
+                const text = paddleTextFromResult(result);
                 console.log('[OCR 原文]\n', text);
+                if (result && result.items) {
+                    console.log('[OCR 行]', result.items.map(it => it.text + ' (' + (it.score != null ? it.score.toFixed(2) : '?') + ')'));
+                }
 
                 resetTags();
                 const found = matchTagsFromText(text);
