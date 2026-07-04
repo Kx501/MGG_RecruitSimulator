@@ -528,11 +528,12 @@
                 overscroll-behavior: contain;
             }
             .table-scroll-x {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden;
             }
             table {
-                min-width: 540px;
+                width: 100%;
+                min-width: 0;
+                table-layout: fixed;
                 font-size: 13px;
             }
             th {
@@ -624,9 +625,6 @@
             .result-stats {
                 font-size: 10px;
                 padding: 5px 8px;
-            }
-            table {
-                min-width: 360px;
             }
             th {
                 padding: 6px 5px;
