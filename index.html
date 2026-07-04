@@ -177,7 +177,7 @@
             min-width: 60px;
             padding-top: 6px;
             color: var(--color-label);
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: 0.03em;
             flex-shrink: 0;
         }
@@ -489,7 +489,7 @@
                 min-width: unset;
                 padding-top: 0;
                 padding-bottom: 2px;
-                font-size: 12px;
+                font-size: 11px;
                 letter-spacing: 0.04em;
             }
             .tags-container {
@@ -506,7 +506,10 @@
                 transform: scale(0.93);
             }
 
-            /* 统计栏 */
+            /* 统计栏：小屏隐藏分析结果，节省纵向空间 */
+            .result-stats.stats-has-result {
+                display: none;
+            }
             .result-stats {
                 font-size: 11px;
                 padding: 6px 10px;
@@ -1299,6 +1302,7 @@
             if (selectedTags.length === 0) {
                 container.innerHTML = '<tr><td colspan="6" class="no-data">未选择任何标签</td></tr>';
                 stats.innerText = "请点击上方标签进行价值分析（支持 1-3 词条组合）";
+                stats.classList.remove('stats-has-result');
                 return;
             }
 
@@ -1378,6 +1382,7 @@
 
             container.innerHTML = finalHTML || '<tr><td colspan="6" class="no-data">当前组合无匹配角色</td></tr>';
             stats.innerText = `分析完毕：共发现 ${highValueCount} 组具有保底价值的组合`;
+            stats.classList.add('stats-has-result');
         }
 
         let paddleClient = null;
